@@ -21,3 +21,6 @@ app.use('/api/bookings', require('./routes/bookingRoutes'));
 app.listen(PORT, () => {
   console.log(`🚀 Server backend berjalan di port ${PORT}`);
 });
+
+// Wajib ditaruh di luar app.listen untuk Vercel Serverless
+module.exports = app;
