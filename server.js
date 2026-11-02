@@ -15,6 +15,10 @@ mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ Berhasil terhubung ke MongoDB'))
   .catch((err) => console.error('❌ Gagal terhubung ke MongoDB:', err));
 
+app.get('/', (req, res) => {
+  res.send('API Backend Elmira Salon Aktif! 🚀');
+});
+
 // Routes
 app.use('/api/bookings', require('./routes/bookingRoutes'));
 
