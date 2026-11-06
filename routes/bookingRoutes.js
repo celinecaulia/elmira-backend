@@ -3,7 +3,9 @@ const router = express.Router();
 const Booking = require('../models/Booking');
 const midtransClient = require('midtrans-client');
 require('dotenv').config();
-const { verifyOwnerRole } = require('../middleware/authMiddleware');
+
+// Import middleware pengaman Owner dan Admin dari authMiddleware.js
+const { verifyOwnerRole, verifyAdminRole } = require('../middleware/authMiddleware');
 
 // Inisialisasi Midtrans Snap
 let snap = new midtransClient.Snap({
@@ -12,8 +14,10 @@ let snap = new midtransClient.Snap({
     clientKey: process.env.MIDTRANS_CLIENT_KEY
 });
 
-// GET: Mengambil semua data booking untuk Admin Dashboard
-router.get('/', async (req, res) => {
+// =========================================================================
+// ENDPOINT KHUSUS ADMIN (TERPROTEKSI MIDDLEWARE - TOLAK 403 JIKA BUKAN ADMIN)
+// =========================================================================
+router.get('/', verifyAdminRole, async (req, res) => {
   try {
     const bookings = await Booking.find().sort({ createdAt: -1 });
     res.json(bookings);
@@ -22,7 +26,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST: Membuat booking baru DAN meminta Token Midtrans
+// POST: Membuat booking baru DAN meminta Token Midtrans (Publik)
 router.post('/', async (req, res) => {
   try {
     const { fullName, email, whatsapp, date, time, services } = req.body;
@@ -90,8 +94,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PUT: Update status booking
-router.put('/:id', async (req, res) => {
+// PUT: Update status booking (Terproteksi Admin)
+router.put('/:id', verifyAdminRole, async (req, res) => {
   try {
     const { status } = req.body;
     const updated = await Booking.findByIdAndUpdate(req.params.id, { status }, { new: true });
@@ -101,8 +105,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE: Hapus booking
-router.delete('/:id', async (req, res) => {
+// DELETE: Hapus booking (Terproteksi Admin)
+router.delete('/:id', verifyAdminRole, async (req, res) => {
   try {
     await Booking.findByIdAndDelete(req.params.id);
     res.json({ message: 'Booking berhasil dihapus' });
@@ -112,7 +116,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 // =========================================================================
-// [BARU] POST: Menerima Webhook / Notifikasi Otomatis langsung dari Midtrans
+// POST: Menerima Webhook / Notifikasi Otomatis langsung dari Midtrans (Publik)
 // =========================================================================
 router.post('/notification', async (req, res) => {
   try {

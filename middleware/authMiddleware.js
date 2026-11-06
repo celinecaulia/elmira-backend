@@ -14,4 +14,18 @@ const verifyOwnerRole = (req, res, next) => {
   next();
 };
 
-module.exports = { verifyOwnerRole };
+// Middleware khusus verifikasi role Admin
+const verifyAdminRole = (req, res, next) => {
+  const adminToken = req.headers['x-admin-auth'];
+  const validAdminToken = process.env.ADMIN_SECRET_TOKEN || 'KunciRahasiaAdminElmira2026';
+
+  if (!adminToken || adminToken !== validAdminToken) {
+    return res.status(403).json({
+      success: false,
+      message: "Akses Ditolak (403 Forbidden): Anda tidak memiliki hak akses tingkat Admin!"
+    });
+  }
+  next();
+};
+
+module.exports = { verifyOwnerRole, verifyAdminRole };
