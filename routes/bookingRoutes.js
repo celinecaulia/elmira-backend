@@ -3,6 +3,7 @@ const router = express.Router();
 const Booking = require('../models/Booking');
 const midtransClient = require('midtrans-client');
 require('dotenv').config();
+const { verifyOwnerRole } = require('../middleware/authMiddleware');
 
 // Inisialisasi Midtrans Snap
 let snap = new midtransClient.Snap({
@@ -148,6 +149,22 @@ router.post('/notification', async (req, res) => {
   } catch (error) {
     console.error('Error saat memproses notifikasi Midtrans:', error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// =========================================================================
+// ENDPOINT KHUSUS OWNER (TERPROTEKSI MIDDLEWARE - TOLAK 403 JIKA BUKAN OWNER)
+// =========================================================================
+router.get('/owner-analytics', verifyOwnerRole, async (req, res) => {
+  try {
+    const allBookings = await Booking.find().sort({ createdAt: -1 });
+    res.status(200).json({
+      success: true,
+      message: 'Akses Owner Terverifikasi',
+      data: allBookings,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
