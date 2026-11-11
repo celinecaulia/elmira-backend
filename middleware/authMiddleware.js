@@ -2,7 +2,15 @@
 
 const verifyOwnerRole = (req, res, next) => {
   const ownerAuthHeader = req.headers['x-owner-auth']; 
-  const validSecretToken = process.env.OWNER_SECRET_TOKEN || 'KunciRahasiaOwnerElmira2026';
+  const validSecretToken = process.env.OWNER_SECRET_TOKEN;
+
+  if (!validSecretToken) {
+    console.error('CRITICAL ERROR: OWNER_SECRET_TOKEN belum diatur di Environment Variables!');
+    return res.status(500).json({
+      success: false,
+      message: 'Konfigurasi autentikasi server belum lengkap.'
+    });
+  }
 
   if (!ownerAuthHeader || ownerAuthHeader !== validSecretToken) {
     return res.status(403).json({
@@ -17,7 +25,15 @@ const verifyOwnerRole = (req, res, next) => {
 // Middleware khusus verifikasi role Admin
 const verifyAdminRole = (req, res, next) => {
   const adminToken = req.headers['x-admin-auth'];
-  const validAdminToken = process.env.ADMIN_SECRET_TOKEN || 'KunciRahasiaAdminElmira2026';
+  const validAdminToken = process.env.ADMIN_SECRET_TOKEN;
+
+  if (!validAdminToken) {
+    console.error('CRITICAL ERROR: ADMIN_SECRET_TOKEN belum diatur di Environment Variables!');
+    return res.status(500).json({
+      success: false,
+      message: 'Konfigurasi autentikasi server belum lengkap.'
+    });
+  }
 
   if (!adminToken || adminToken !== validAdminToken) {
     return res.status(403).json({
