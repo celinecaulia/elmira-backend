@@ -157,6 +157,19 @@ router.post('/notification', async (req, res) => {
 });
 
 // =========================================================================
+// RUTE BARU KHUSUS KUOTA KALENDER (PUBLIK - TANPA MIDDLEWARE ADMIN)
+// =========================================================================
+router.get('/quota', async (req, res) => {
+  try {
+    // Hanya ambil tanggal dan status untuk keperluan penghitungan kuota, hindari data pribadi
+    const bookings = await Booking.find({}, 'date status');
+    res.status(200).json({ success: true, data: bookings });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// =========================================================================
 // ENDPOINT KHUSUS OWNER (TERPROTEKSI MIDDLEWARE - TOLAK 403 JIKA BUKAN OWNER)
 // =========================================================================
 router.get('/owner-analytics', verifyOwnerRole, async (req, res) => {
